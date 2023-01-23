@@ -39,7 +39,7 @@ app.use(session({
 }))
 
 const corsOptions ={
-  origin: 'http://localhost:8080', 
+  origin: ['http://localhost:8080', "https://place-puppy.com:", "https://place-puppy.com"], 
   methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD", "PATCH", "DELETE"],
   credentials:true,          
   optionSuccessStatus:200

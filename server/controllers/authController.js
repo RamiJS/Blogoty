@@ -150,11 +150,23 @@ module.exports.logout_get = (req, res) => {
     }
 }
 
+module.exports.user_info_get = async(req, res) => {
+    const userId = req.params.id;
+
+    try {
+        let { username, roles, likes, image, status, email } = await User.findById(userId).populate('likes').sort({createdAt: -1})
+        res.status(200).send({username, roles, likes, image, status, email})
+    } catch(err) {
+        console.log(err);
+        res.status(400).send('something went wrong while retreiving user info')
+    }
+}
+
 
 module.exports.check_session = (req, res) => {
     const user = req.session.user
     if(req.session && user) {
-        res.status(200).send({username: user.username, roles: user.roles})
+        res.status(200).send({username: user.username, roles: user.roles, id: user._id})
     } else {
         res.status(400).send('User Session is Invalid')
     }

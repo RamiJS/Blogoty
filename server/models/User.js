@@ -39,7 +39,7 @@ const userSchema = new Schema({
     },
     image: {
         type: String,
-        default: 'http://place-puppy.com/200x200'
+        default: 'https://storage.googleapis.com/blogoty_profile/96qabyfd3xi51.webp'
     },
     status: {
         type: String,

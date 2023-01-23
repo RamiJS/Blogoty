@@ -1,7 +1,7 @@
 <script setup>
 import { ref }  from 'vue'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
-import { PencilIcon, DocumentDuplicateIcon, UserCircleIcon} from "@heroicons/vue/24/outline"
+import { PencilIcon, DocumentDuplicateIcon, UserCircleIcon, Cog6ToothIcon} from "@heroicons/vue/24/outline"
 import { ChevronDownIcon, } from '@heroicons/vue/20/solid'
 import { useStore } from 'vuex'
 import axios from 'axios'
@@ -24,7 +24,8 @@ const logout = async() => {
 
 
 const options = [
-    {label: "profile", href: `/profile/${store.state.authUser.id}`, icon: PencilIcon},
+    {label: "Profile", href: `/profile/${store.state.authUser.id}`, icon: UserCircleIcon},
+    {label: "Settings", href: `/settings/${store.state.authUser.id}`, icon: Cog6ToothIcon},
     {label: "sign out", href: "", icon: DocumentDuplicateIcon, func: logout},
 ]
 

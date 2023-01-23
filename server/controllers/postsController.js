@@ -8,11 +8,9 @@ const Multer = require("multer");
 
 dotenv.config();
 
-console.log(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
 module.exports.all_posts = async(req, res) => {
     let AllPosts = await Posts.find().select('-updatedAt -__v').populate('comments likedBy postedBy comments.postedBy').sort({createdAt: -1}) // .filter({isDeleted: false})
-    console.log(AllPosts);
     let data = AllPosts.filter(x => x.isDeleted == false)
     res.status(200).json(data)
 }

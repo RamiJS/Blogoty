@@ -2,8 +2,8 @@
   <section class="flex flex-col gap-5">
     <h2 class="text-lg font-bold pb-2">More from Blogoty:</h2>
     <router-link v-for="article in articles.slice(0, 3)" :key="article._id" :to="{ name: 'blog', params: { id: article._id } }" class="flex flex-row gap-5">
-        <img :src="article.image" class="w-16 h-16" alt="">
-        <div class="flex flex-col">
+        <img :src="article.image" class="w-16 h-16 object-cover" alt="">
+        <div class="flex flex-col my-auto">
             <div class="flex flex-row gap-3">
                 <img :src="article.postedBy.image" class="w-6 h-6 rounded-full" alt=""/>
                 <p>{{article.postedBy.username}}</p>

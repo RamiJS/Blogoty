@@ -1,14 +1,16 @@
 <template>
   
-    <div v-bind="containerProps" class="h-screen p-2 rounded w-full overflow-hidden">
-      <div v-bind="wrapperProps" class="w-full mx-auto">
-        <div v-for="{index, data} in list" :key="index" class="h-[180px] px-4 mb-4">
-        <SingleBlog
-        :blog="data"
-        />
+    <section class="w-full">
+      <div v-bind="containerProps" class="h-screen p-2 rounded overflow-hidden remove-scroll-bar">
+        <div v-bind="wrapperProps" class="w-full mx-auto">
+          <div v-for="{index, data} in list" :key="index" class="px-4 mb-8">
+          <SingleBlog
+          :blog="data"
+          />
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
 </template>
 
@@ -48,5 +50,8 @@ import { computed } from 'vue';
 </script>
 
 <style>
-
+.remove-scroll-bar::-webkit-scrollbar {
+  width: 0em;
+  background-color: #ffffff;
+}
 </style>

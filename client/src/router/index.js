@@ -7,8 +7,10 @@ import SingleBlogView from '@/views/SingleBlogView.vue'
 import WriteBlogsView from '@/views/WriteBlogsView.vue'
 import BookMarksView from '@/views/BookMarksView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import AccountSettingsView from '@/views/AccountSettingsView.vue'
 import img from '@/views/SendImage.vue'
 import axios from 'axios'
+import {useRoute} from "vue-router";
 
 
 const routes = [
@@ -97,6 +99,32 @@ const routes = [
     props: route => ({
       id: route.params.id
     }),
+  },
+  {
+    path: '/settings/:id',
+    name: 'settings',
+    component: AccountSettingsView,
+    props: route => ({
+      id: route.params.id
+    }),
+    beforeEnter: async(to, from) => {
+      const currentRoute = to.params.id;
+      try {
+        await axios.get('http://localhost:3000/checkSession')
+        .then((res) =>{
+          let user = res.data
+          if(user.id === currentRoute) {
+            console.log('users match');
+          } else {
+            console.log('users do not match');
+            router.push({name: 'feed'})
+          }
+        })
+      } catch (error) {
+        console.log("Error: user is not signed in yet");
+        return { name: 'feed'}
+      }
+    }
   },
 ]
 
