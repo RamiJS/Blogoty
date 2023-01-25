@@ -41,6 +41,10 @@ const userSchema = new Schema({
         type: String,
         default: 'https://storage.googleapis.com/blogoty_profile/96qabyfd3xi51.webp'
     },
+    banner: {
+        type: String,
+        default: 'https://storage.googleapis.com/blogoty_profile/96qabyfd3xi51.webp'
+    },
     status: {
         type: String,
     }

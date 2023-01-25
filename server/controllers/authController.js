@@ -1,6 +1,7 @@
 const User = require('../models/User')
 const jwt = require('jsonwebtoken')
-
+const { Storage } = require('@google-cloud/storage');
+const path = require('path')
 // handle errors
 const handleError = (err) => {
     console.log(err.message, err.code);
@@ -108,32 +109,87 @@ module.exports.login_post = async(req, res) => {
 }
 
 
+// module.exports.update_patch = async(req, res, next) => {
+//     const id = req.params.id
+//     const update = req.body
+//     const token = req.cookies.jwt;
+// // checking if if there is a token. if there is one, then we will see if it matches the one that is requested to be changed.
+//     if(token) {
+//         jwt.verify(token, 'yoji', async(err, decodedToken) => {
+//             let user = await User.findById(decodedToken.id)
+//             if (user.id == id) {
+//                 try {
+//                     const result = await User.findOneAndUpdate(id, update)
+//                     res.send(result)
+//                     next();
+//                 }
+//                 catch(err) {
+//                     console.log(err)
+//                 }
+//             } else {
+//                 console.log(err)
+//                 res.send('user id doesnt match')
+//                 console.log(id, '',user)
+//             }
+//         })
+//     }
+// }
+
+let projectId = process.env.GOOGLE_PROJECT_ID
+let keyFilename = process.env.GOOGLE_APPLICATION_CREDENTIALS
+// Creates a client
+const storage = new Storage({
+  projectId,
+  keyFilename
+});
+const bucket = storage.bucket('blogoty_profile');
+
 module.exports.update_patch = async(req, res, next) => {
-    const id = req.params.id
-    const update = req.body
-    const token = req.cookies.jwt;
-// checking if if there is a token. if there is one, then we will see if it matches the one that is requested to be changed.
-    if(token) {
-        jwt.verify(token, 'yoji', async(err, decodedToken) => {
-            let user = await User.findById(decodedToken.id)
-            if (user.id == id) {
-                try {
-                    const result = await User.findOneAndUpdate(id, update)
-                    res.send(result)
-                    next();
+    const userId = req.params.id
+const {username, email, status} = req.body
+const image = req.file;
+const user = req.session.user._id
+
+if(user === userId) {
+    try {
+        let updateData = {}
+        if (username) updateData.username = username
+        if (email) updateData.email = email
+        if (status) updateData.status = status
+        if(image) {
+            console.log("File found, trying to upload...");
+            const blob = bucket.file(image.originalname);
+            const blobStream = blob.createWriteStream();
+
+            blobStream.on("finish", async () => {
+                console.log("Success");
+                updateData.image = `https://storage.googleapis.com/${bucket.name}/${image.originalname}`;
+                const existingImageUrl = await User.findById(user).select('image')
+                if(existingImageUrl.image){
+                  const fileName = path.basename(existingImageUrl.image)
+                  await bucket.file(fileName).exists().then(async ([exists])=>{
+                    if(exists){
+                      await bucket.file(fileName).delete()
+                    }
+                  })
                 }
-                catch(err) {
-                    console.log(err)
-                }
-            } else {
-                console.log(err)
-                res.send('user id doesnt match')
-                console.log(id, '',user)
-            }
-        })
+                const updateUser = await User.findOneAndUpdate(user, updateData, {new: true}).select('image')
+                res.status(201).json({ user: updateUser._id, image: updateData.image});
+              });
+              blobStream.end(image.buffer);
+        } else {
+            const updateUser = await User.findOneAndUpdate(user, updateData, {new: true}).select('image')
+            res.status(201).json({ user: updateUser._id});
+        }
+
     }
+    catch(err) {
+        console.log(err)
+        res.status(400).send("Error 400.")
+    }        
 }
 
+}
 
 module.exports.logout_get = (req, res) => {
     if (req.session) {
@@ -154,8 +210,8 @@ module.exports.user_info_get = async(req, res) => {
     const userId = req.params.id;
 
     try {
-        let { username, roles, likes, image, status, email } = await User.findById(userId).populate('likes').sort({createdAt: -1})
-        res.status(200).send({username, roles, likes, image, status, email})
+        let { username, roles, likes, image, status, email, id } = await User.findById(userId).populate('likes').sort({createdAt: -1})
+        res.status(200).send({username, roles, likes, image, status, email, id})
     } catch(err) {
         console.log(err);
         res.status(400).send('something went wrong while retreiving user info')
